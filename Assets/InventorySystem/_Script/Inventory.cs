@@ -2,15 +2,19 @@ using inventory_item;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace inventory
 {
     public class Inventory : Singleton<Inventory>
     {
-        public Dictionary<string, Queue<ItemBase>> items = new Dictionary<string, Queue<ItemBase>>();
+        private Dictionary<string, Queue<ItemBase>> items = new Dictionary<string, Queue<ItemBase>>();
         public ItemBase current_item = null;
         public bool hold_in_hand = false;
         private GameObject parentGO = null;
+
+        public UnityEvent onHoldChange = new UnityEvent();
+        public UnityEvent<ItemBase> onItemChange = new UnityEvent<ItemBase>();
 
         public void Init(GameObject p)
         {
@@ -33,6 +37,8 @@ namespace inventory
                 current_item = item;
                 hold_in_hand = true;
                 gameObject.SetActive(true);
+
+                onItemChange?.Invoke(current_item);
             }
             else
             {
@@ -84,6 +90,8 @@ namespace inventory
 
             current_item.gameObject.SetActive(hold_in_hand);
             Debug.Log(current_item.item_name);
+
+            onItemChange?.Invoke(current_item);
         }
 
         /// <summary>
@@ -100,6 +108,8 @@ namespace inventory
             current_item = targetItem;
             current_item.gameObject.SetActive(hold_in_hand);
             Debug.Log(current_item.item_name);
+
+            onItemChange?.Invoke(current_item);
         }
 
         /// <summary>
@@ -111,6 +121,8 @@ namespace inventory
             if (current_item == null) return ;
             hold_in_hand = !hold_in_hand;
             current_item.gameObject.SetActive(hold_in_hand);
+
+            onHoldChange?.Invoke();
         }
 
         /// <summary>
@@ -130,6 +142,24 @@ namespace inventory
             Rigidbody rb = current_item.GetComponent<Rigidbody>();
             if (rb) rb.isKinematic = false;
             current_item = null;
+
+            onItemChange?.Invoke(current_item);
+        }
+
+
+        public ItemBase GetItemByIndex(int index)
+        {
+            return items.ElementAt(index).Value.Peek();
+        }
+
+        public int GetCountByIndex(int index)
+        {
+            return items.ElementAt(index).Value.Count;
+        }
+
+        public int GetItemTypesCount()
+        {
+            return items.Count;
         }
 
 

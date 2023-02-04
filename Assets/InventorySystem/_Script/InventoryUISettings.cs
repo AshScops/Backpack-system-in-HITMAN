@@ -1,7 +1,6 @@
 using FairyGUI;
 using inventory_item;
-using System.Collections.Generic;
-using System.Linq;
+using inventory_module;
 using UnityEngine;
 
 namespace inventory
@@ -39,10 +38,11 @@ namespace inventory
             gList.SetVirtual();
             gList.itemRenderer = (index, obj) => {
 
-                (string itemType, Queue<ItemBase> queue) = Inventory.Instance.items.ElementAt(index);
+                ItemBase item = Inventory.Instance.GetItemByIndex(index);
+                int count = Inventory.Instance.GetCountByIndex(index);
                 GButton gButton = obj.asButton;
-                gButton.GetChild("item_name").asTextField.text = queue.Peek().item_name + " X" + queue.Count;
-                gButton.GetChild("item_image").asLoader.texture = new NTexture(queue.Peek().item_image.texture);
+                gButton.GetChild("item_name").asTextField.text = item.item_name + " X" + count;
+                gButton.GetChild("item_image").asLoader.texture = new NTexture(item.item_image.texture);
 
                 gButton.onClick.Set(() =>
                 {
@@ -51,14 +51,14 @@ namespace inventory
                     gButton.GetTransition("on_select").Play();
 
                     GComponent com = inventory.GetChild("item_info").asCom;
-                    com.GetChild("item_name").asTextField.text = queue.Peek().item_name;
-                    com.GetChild("item_description").asTextField.text = queue.Peek().item_description;
+                    com.GetChild("item_name").asTextField.text = item.item_name;
+                    com.GetChild("item_description").asTextField.text = item.item_description;
 
                     current_button = gButton;
                     hold_button.touchable = true;
                 });
             };
-            gList.numItems = Inventory.Instance.items.Count;
+            gList.numItems = Inventory.Instance.GetItemTypesCount();
 
             hold_button = inventory.GetChild("button").asButton;
             hold_button.GetChild("text").asTextField.text = "设置为当前物品";
@@ -66,23 +66,42 @@ namespace inventory
             hold_button.onClick.Set(() =>
             {
                 GList gList = inventory.GetChild("list").asList;
-                ItemBase targetItem = Inventory.Instance.items.ElementAt(gList.GetChildIndex(current_button)).Value.Peek();
+                ItemBase targetItem = Inventory.Instance.GetItemByIndex(gList.GetChildIndex(current_button));
                 Inventory.Instance.ChangeCurrentItem(targetItem);
                 Debug.Log("change current_item to: " + Inventory.Instance.current_item.item_name);
             });
 
             menu_root.visible = false;
             inventory.visible = false;
+
+            Inventory.Instance.onHoldChange.AddListener(UpdateHoldStateHUD);
+            Inventory.Instance.onItemChange.AddListener(UpdateItemDispalyHUD);
+
+            InventoryModule.Instance.openInventory.AddListener(OpenInventory);
+            InventoryModule.Instance.closeInventory.AddListener(CloseInventory);
+            //TODO:销毁时解绑
         }
 
-        public void UpdateItemsList()
+        private void OpenInventory()
+        {
+            InventoryUISettings.Instance.menu_root.visible = true;
+            InventoryUISettings.Instance.inventory.visible = true;
+            UpdateItemsList();
+        }
+
+        private void CloseInventory()
+        {
+            InventoryUISettings.Instance.menu_root.visible = false;
+            InventoryUISettings.Instance.inventory.visible = false;
+        }
+
+        private void UpdateItemsList()
         {
             GList gList = inventory.GetChild("list").asList;
-            gList.numItems = Inventory.Instance.items.Count;
+            gList.numItems = Inventory.Instance.GetItemTypesCount();
         }
 
-
-        public void UpdateHoldStateHUD()
+        private void UpdateHoldStateHUD()
         {
             GComponent com = HUDSettings.Instance.hud_root.GetChild("item_image").asCom;
             GLoader gLoader = com.GetChild("item_image").asLoader;
@@ -98,20 +117,19 @@ namespace inventory
             }
         }
 
-        public void UpdateItemDispalyHUD()
+        private void UpdateItemDispalyHUD(ItemBase targetItem)
         {
             GComponent com = HUDSettings.Instance.hud_root.GetChild("item_image").asCom;
             GLoader gLoader = com.GetChild("item_image").asLoader;
 
-            if (Inventory.Instance.current_item == null)
+            if (targetItem == null)
             {
                 gLoader.url = "";
             }
             else
             {
-                gLoader.texture = new NTexture(Inventory.Instance.current_item.item_image.texture);
+                gLoader.texture = new NTexture(targetItem.item_image.texture);
             }
-
         }
     }
 

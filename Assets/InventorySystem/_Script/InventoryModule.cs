@@ -1,6 +1,5 @@
 using inventory;
 using UnityEngine;
-using inventory_item;
 using UnityEngine.Events;
 
 namespace inventory_module
@@ -14,25 +13,11 @@ namespace inventory_module
         {
             Inventory.Instance.Init(playerHandRoot);
             InventoryUISettings.Instance.Init();
-
-            openInventory.AddListener(() =>
-            {
-                InventoryUISettings.Instance.UpdateItemsList();
-                InventoryUISettings.Instance.menu_root.visible = true;
-                InventoryUISettings.Instance.inventory.visible = true;
-            });
-
-            closeInventory.AddListener(() =>
-            {
-                InventoryUISettings.Instance.menu_root.visible = false;
-                InventoryUISettings.Instance.inventory.visible = false;
-            });
         }
 
         public void AddItem(GameObject gameObject)
         {
             Inventory.Instance.AddItem(gameObject);
-            InventoryUISettings.Instance.UpdateItemDispalyHUD();
         }
 
         /// <summary>
@@ -41,7 +26,6 @@ namespace inventory_module
         public void ChangeCurrentItem()
         {
             Inventory.Instance.ChangeCurrentItem();
-            InventoryUISettings.Instance.UpdateItemDispalyHUD();
         }
 
         /// <summary>
@@ -51,17 +35,12 @@ namespace inventory_module
         public void ChangeHoldState()
         {
             Inventory.Instance.ChangeHoldState();
-            InventoryUISettings.Instance.UpdateHoldStateHUD();
         }
 
         public void DropCurrentItem()
         {
             Inventory.Instance.RemoveCurrentItem();
-            InventoryUISettings.Instance.UpdateItemDispalyHUD();
         }
-
-
-
     }
 
 }
