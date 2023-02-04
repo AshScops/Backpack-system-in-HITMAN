@@ -1,13 +1,7 @@
-using FairyGUI;
 using inventory_item;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using UnityEditor.Search;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 namespace inventory
 {
@@ -89,7 +83,23 @@ namespace inventory
             }
 
             current_item.gameObject.SetActive(hold_in_hand);
-            Debug.Log(current_item.gameObject);
+            Debug.Log(current_item.item_name);
+        }
+
+        /// <summary>
+        /// 传入一个物品基类，将当前物品修改为传入的物品，不改变当前的hold状态
+        /// </summary>
+        public void ChangeCurrentItem(ItemBase targetItem)
+        {
+            if (items.Count == 0 || targetItem == null) return;
+
+            if (current_item != null)
+            {
+                current_item.gameObject.SetActive(false);
+            }
+            current_item = targetItem;
+            current_item.gameObject.SetActive(hold_in_hand);
+            Debug.Log(current_item.item_name);
         }
 
         /// <summary>
@@ -116,7 +126,9 @@ namespace inventory
             {
                 items.Remove(itemType);
             }
-            current_item.gameObject.SetActive(false);
+            current_item.transform.SetParent(null);
+            Rigidbody rb = current_item.GetComponent<Rigidbody>();
+            if (rb) rb.isKinematic = false;
             current_item = null;
         }
 

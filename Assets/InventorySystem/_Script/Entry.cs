@@ -10,9 +10,10 @@ public class Entry : MonoBehaviour
     void Start()
     {
         HUDSettings.Instance.Init();
-        InventoryModule.Instance.InventoryInit();
+        InventoryModule.Instance.InventoryInit(GameObject.Find("Capsule"));
 
         //外部无需知道捡到的具体是什么，只需要交给责任链处理
+        //TODO:责任链
         ItemBase[] items = (ItemBase[])FindObjectsOfType(typeof(ItemBase));
 
         foreach (var i in items)
@@ -26,22 +27,32 @@ public class Entry : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.I))
         {
-            InventoryModule.Instance.ShowInventory();
+            InventoryModule.Instance.openInventory.Invoke();
         }
 
-        if (Input.GetKeyDown(KeyCode.D))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            InventoryModule.Instance.ChangeCurrentItem();
+            InventoryModule.Instance.closeInventory.Invoke();
+        }
+
+        float scrollWhell = Input.GetAxis("Mouse ScrollWheel");
+        {
+            if(scrollWhell != 0)
+            {
+                InventoryModule.Instance.ChangeCurrentItem();
+            }
+        }
+
+        if(Input.GetMouseButtonDown(2))
+        {
+            InventoryModule.Instance.ChangeHoldState();
         }
 
         if(Input.GetKeyDown(KeyCode.Z))
         {
             InventoryModule.Instance.DropCurrentItem();
         }
-        if(Input.GetMouseButtonDown(2))
-        {
-            InventoryModule.Instance.ChangeHoldState();
-        }
+
 
     }
 

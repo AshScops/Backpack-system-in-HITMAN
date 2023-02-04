@@ -1,11 +1,8 @@
 using FairyGUI;
 using inventory_item;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 namespace inventory
 {
@@ -69,15 +66,23 @@ namespace inventory
             hold_button.onClick.Set(() =>
             {
                 GList gList = inventory.GetChild("list").asList;
-                Inventory.Instance.current_item = Inventory.Instance.items.ElementAt(gList.GetChildIndex(current_button)).Value.Peek();
+                ItemBase targetItem = Inventory.Instance.items.ElementAt(gList.GetChildIndex(current_button)).Value.Peek();
+                Inventory.Instance.ChangeCurrentItem(targetItem);
                 Debug.Log("change current_item to: " + Inventory.Instance.current_item.item_name);
             });
 
-            InventoryUISettings.Instance.menu_root.visible = false;
-            InventoryUISettings.Instance.inventory.visible = false;
+            menu_root.visible = false;
+            inventory.visible = false;
         }
 
-        internal void UpdateHoldStateHUD()
+        public void UpdateItemsList()
+        {
+            GList gList = inventory.GetChild("list").asList;
+            gList.numItems = Inventory.Instance.items.Count;
+        }
+
+
+        public void UpdateHoldStateHUD()
         {
             GComponent com = HUDSettings.Instance.hud_root.GetChild("item_image").asCom;
             GLoader gLoader = com.GetChild("item_image").asLoader;
@@ -93,13 +98,20 @@ namespace inventory
             }
         }
 
-        internal void UpdateItemDispalyHUD()
+        public void UpdateItemDispalyHUD()
         {
-            if (Inventory.Instance.current_item == null) return;
-
             GComponent com = HUDSettings.Instance.hud_root.GetChild("item_image").asCom;
             GLoader gLoader = com.GetChild("item_image").asLoader;
-            gLoader.texture = new NTexture(Inventory.Instance.current_item.item_image.texture);
+
+            if (Inventory.Instance.current_item == null)
+            {
+                gLoader.url = "";
+            }
+            else
+            {
+                gLoader.texture = new NTexture(Inventory.Instance.current_item.item_image.texture);
+            }
+
         }
     }
 

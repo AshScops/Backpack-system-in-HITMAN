@@ -1,6 +1,5 @@
 using FairyGUI;
-using System.Collections;
-using System.Collections.Generic;
+using inventory_module;
 using UnityEngine;
 
 namespace inventory
@@ -27,6 +26,16 @@ namespace inventory
 
             hud_root = ui_panel.ui;
             hud_root.Center();
+
+            InventoryModule.Instance.openInventory.AddListener(() =>
+            {
+                hud_root.visible = false;
+            });
+
+            InventoryModule.Instance.closeInventory.AddListener(() =>
+            {
+                hud_root.visible = true;
+            });
         }
     }
 

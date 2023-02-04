@@ -1,20 +1,32 @@
 using inventory;
 using UnityEngine;
 using inventory_item;
+using UnityEngine.Events;
 
 namespace inventory_module
 {
     public class InventoryModule : Singleton<InventoryModule>
     {
-        public void InventoryInit()
-        {
-            Inventory.Instance.Init(GameObject.Find("Capsule"));
-            InventoryUISettings.Instance.Init();
-        }
+        public UnityEvent openInventory = new UnityEvent();
+        public UnityEvent closeInventory = new UnityEvent();
 
-        public void ShowInventory()
+        public void InventoryInit(GameObject playerHandRoot)
         {
-            InventoryUISettings.Instance.inventory.visible = true;
+            Inventory.Instance.Init(playerHandRoot);
+            InventoryUISettings.Instance.Init();
+
+            openInventory.AddListener(() =>
+            {
+                InventoryUISettings.Instance.UpdateItemsList();
+                InventoryUISettings.Instance.menu_root.visible = true;
+                InventoryUISettings.Instance.inventory.visible = true;
+            });
+
+            closeInventory.AddListener(() =>
+            {
+                InventoryUISettings.Instance.menu_root.visible = false;
+                InventoryUISettings.Instance.inventory.visible = false;
+            });
         }
 
         public void AddItem(GameObject gameObject)
@@ -45,6 +57,7 @@ namespace inventory_module
         public void DropCurrentItem()
         {
             Inventory.Instance.RemoveCurrentItem();
+            InventoryUISettings.Instance.UpdateItemDispalyHUD();
         }
 
 
