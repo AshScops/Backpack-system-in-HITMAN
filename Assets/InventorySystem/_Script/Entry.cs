@@ -1,12 +1,14 @@
 using inventory;
 using inventory_item;
 using inventory_module;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Entry : MonoBehaviour
 {
     public Rigidbody item;
-
+    public Dictionary<string, object> dic;
     void Start()
     {
         HUDSettings.Instance.Init();
@@ -21,10 +23,30 @@ public class Entry : MonoBehaviour
             InventoryModule.Instance.AddItem(i.gameObject);
             Debug.Log("pick");
         }
+
+        dic = new Dictionary<string, object>();
+        dic["direction"] = (Vector3.up + Vector3.forward).normalized;
+        dic["velocitySize"] = 1.5f;
     }
 
     void Update()
     {
+        if(Input.GetMouseButtonUp(1))
+        {
+            InventoryModule.Instance.CancelPrepareCurrentItem();
+        }
+
+        if (Input.GetMouseButton(1))
+        {
+            InventoryModule.Instance.PrepareCurrentItemAction(dic);
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            InventoryModule.Instance.DoCurrentItemAction(dic);
+        }
+
+
         if (Input.GetKeyDown(KeyCode.I))
         {
             InventoryModule.Instance.openInventory.Invoke();

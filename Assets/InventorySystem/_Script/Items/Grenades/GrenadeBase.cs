@@ -1,44 +1,33 @@
-using inventory_item_function;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace inventory_item
 {
 
-    public abstract class GrenadeBase : ItemBase , IThrowable
+    public abstract class GrenadeBase : ThrowableItemBase
     {
         public float delay;
         public float range;
-        public Action action_after_explosion;
+        public Action action_on_explosion;
 
 
-
-        /// <summary>
-        /// 要在父类方法调用前写明action方法
-        /// </summary>
-        /// <param name="direction"></param>
-        /// <param name="forceSize"></param>
-        public virtual void Throw(Vector3 direction , float forceSize)
+        public override void DoAction(Dictionary<string, object> dic)
         {
-            var rb = this.GetComponent<Rigidbody>();
-
-            if (rb == null)
+            action_after_throw = () =>
             {
-                Debug.Log("The Grenade has no Rigidbody");
-                return;
-            }
+                StartCoroutine(Explosion());
+            };
 
-            rb.AddForce(direction * forceSize, ForceMode.Impulse);
-
-            StartCoroutine(Explosion());
+            base.DoAction(dic);
         }
 
 
         private IEnumerator Explosion()
         {
             yield return new WaitForSeconds(delay);
-            this.action_after_explosion.Invoke();
+            this.action_on_explosion.Invoke();
             Destroy(this.gameObject);
         }
 

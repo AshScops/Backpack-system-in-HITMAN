@@ -7,16 +7,16 @@ namespace inventory_item
     public class GrenadeFlash : GrenadeBase
     {
         
-        public override void Throw(Vector3 direction, float forceSize)
+        public override void DoAction(Dictionary<string, object> dic)
         {
-            this.action_after_explosion = () =>
+            this.action_on_explosion = () =>
             {
                 Debug.Log("this delay : " + this.delay + " this range : " + this.range);
                 Debug.Log("delay : " + delay + "range : " + range);
-                Debug.Log("иа╧Б");
+                Debug.Log("GrenadeFlashDoAction");
             };
 
-            base.Throw(direction , forceSize);
+            base.DoAction(dic);
         }
 
 

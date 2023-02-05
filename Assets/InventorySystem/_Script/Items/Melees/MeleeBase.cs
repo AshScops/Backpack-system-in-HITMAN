@@ -5,9 +5,13 @@ using UnityEngine;
 
 namespace inventory_item
 {
-    public abstract class MeleeBase : ItemBase, IThrowable
+    public abstract class MeleeBase : ThrowableItemBase
     {
-        public abstract void Throw(Vector3 direction, float forceSize);
+        public float ATK;
+        public float range;
+
+
+
     }
 
 }

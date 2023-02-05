@@ -1,4 +1,6 @@
 using inventory_item;
+using inventory_item_function;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -23,7 +25,7 @@ namespace inventory
         }
 
         /// <summary>
-        /// 若当前物品为空，则入库并拿在手里；否则直接入库
+        /// 若当前物品为空，则入库并持有；否则直接入库
         /// </summary>
         /// <param name="item"></param>
         public void AddItem(GameObject gameObject)
@@ -128,9 +130,9 @@ namespace inventory
         /// <summary>
         /// 仅扔下并移除物品，而不改变当前的hold状态
         /// </summary>
-        public void RemoveCurrentItem()
+        public ItemBase RemoveCurrentItem()
         {
-            if (current_item == null || ! hold_in_hand) return ;
+            if (current_item == null || ! hold_in_hand) return null;
 
             string itemType = current_item.GetType().ToString();
             items[itemType].Dequeue();
@@ -141,9 +143,59 @@ namespace inventory
             current_item.transform.SetParent(null);
             Rigidbody rb = current_item.GetComponent<Rigidbody>();
             if (rb) rb.isKinematic = false;
+            ItemBase res = current_item;
             current_item = null;
 
-            onItemChange?.Invoke(current_item);
+            onItemChange?.Invoke(null);
+            return res;
+        }
+
+
+
+        private bool IsAvailableBeforeAction()
+        {
+            if (current_item == null || !hold_in_hand) return false;
+
+            Type itemType = current_item.GetType();
+            return typeof(IAction).IsAssignableFrom(itemType);
+        }
+
+        private IAction GetCurrentItemIAction()
+        {
+            return current_item as IAction;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CancelPrepareCurrentItem()
+        {
+            if (IsAvailableBeforeAction())
+                GetCurrentItemIAction().CancelPrepare();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void PrepareCurrentItemAction(Dictionary<string, object> dic)
+        {
+            if (IsAvailableBeforeAction())
+            {
+                GetCurrentItemIAction().PrepareAction(dic);
+                //Debug.Log("PrepareCurrentItemAction");
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void DoCurrentItemAction(Dictionary<string, object> dic)
+        {
+            if (IsAvailableBeforeAction())
+            {
+                GetCurrentItemIAction().DoAction(dic);
+                Debug.Log("DoCurrentItemAction");
+            }
         }
 
 

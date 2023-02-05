@@ -1,6 +1,9 @@
 using inventory;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using static UnityEditor.Progress;
 
 namespace inventory_module
 {
@@ -41,6 +44,31 @@ namespace inventory_module
         {
             Inventory.Instance.RemoveCurrentItem();
         }
+
+        public void CancelPrepareCurrentItem()
+        {
+            Inventory.Instance.CancelPrepareCurrentItem();
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void PrepareCurrentItemAction(Dictionary<string, object> dic)
+        {
+            Inventory.Instance.PrepareCurrentItemAction(dic);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void DoCurrentItemAction(Dictionary<string, object> dic)
+        {
+            Inventory.Instance.DoCurrentItemAction(dic);
+        }
+
+
     }
 
 }
